@@ -89,7 +89,7 @@ mod tests {
 
     #[test]
     fn test_predict_the_winner() {
-        assert_eq!(predict_the_winner(vec![0]), true);
+        assert_eq!(predict_the_winner(vec![0]), false);
         assert_eq!(predict_the_winner(vec![1, 5, 2, 4, 6]), true);
     }
 }
