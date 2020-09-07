@@ -83,6 +83,53 @@ pub fn rob(nums: Vec<i32>) -> i32 {
         .1
 }
 
+pub fn top_k_frequent(nums: Vec<i32>, k: i32) -> Vec<i32> {
+    use std::cmp::Reverse;
+    use std::collections::{BinaryHeap, HashMap};
+
+    nums.iter()
+        .fold(HashMap::new(), |mut m, &i| {
+            *m.entry(i).or_insert(0) += 1;
+            m
+        })
+        .iter()
+        .fold(BinaryHeap::new(), |mut h, (&k_num, &v)| {
+            if h.len() < k as usize {
+                h.push(Reverse((v, k_num)));
+            } else if let Some(&Reverse((c, _))) = h.peek() {
+                if v > c {
+                    h.pop();
+                    h.push(Reverse((v, k_num)));
+                }
+            }
+            h
+        })
+        .iter()
+        .map(|&Reverse((_, k))| k)
+        .collect()
+}
+
+pub fn find_kth_largest(nums: Vec<i32>, k: i32) -> i32 {
+    use std::cmp::Reverse;
+    use std::collections::BinaryHeap;
+
+    nums.iter()
+        .fold(BinaryHeap::new(), |mut h, &i| {
+            if h.len() < k as usize {
+                h.push(Reverse(i));
+            } else if let Some(&Reverse(v)) = h.peek() {
+                if v < i {
+                    h.pop();
+                    h.push(Reverse(i));
+                }
+            }
+            h
+        })
+        .peek()
+        .map(|&Reverse(v)| v)
+        .unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -91,6 +138,28 @@ mod tests {
     fn test_predict_the_winner() {
         assert_eq!(predict_the_winner(vec![0]), true);
         assert_eq!(predict_the_winner(vec![1, 5, 2, 4, 6]), true);
+    }
+
+    #[test]
+    fn test_top_k_frequent() {
+        let mut v1 = top_k_frequent(vec![1, 1, 1, 2, 2, 3], 2);
+        v1.sort();
+
+        let mut v2 = top_k_frequent(vec![1], 1);
+        v2.sort();
+
+        let mut v3 = top_k_frequent(vec![2, 3, 4, 5, 2, 3, 4, 2, 3, 2], 2);
+        v3.sort();
+
+        assert_eq!(v1, vec![1, 2]);
+        assert_eq!(v2, vec![1]);
+        assert_eq!(v3, vec![2, 3]);
+    }
+
+    #[test]
+    fn test_find_kth_largest() {
+        assert_eq!(find_kth_largest(vec![3, 2, 1, 5, 6, 4], 2), 5);
+        assert_eq!(find_kth_largest(vec![3, 2, 3, 1, 2, 4, 5, 5, 6], 4), 4);
     }
 }
 
